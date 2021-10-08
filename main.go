@@ -1,10 +1,18 @@
-package main 
+package main
 
 import (
-        "fmt"
-        "log"
-        "net/http"
+	"context"
+	"fmt"
+	"log"
+	"net/http"
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
+
 
 func Index(w http.ResponseWriter, r *http.Request) {
         fmt.Fprint(w, "Welcome!\n")
@@ -50,5 +58,33 @@ func handleRequest(){
 
 
 func main(){
+   client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://naveen:jI5jrhnXHI8ibyQw@cluster1.ezz33.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+
+   if err != nil {
+    log.Fatal(err)
+  }
+  ctx, _:= context.WithTimeout(context.Background(), 10*time.Second)
+  err = client.Connect(ctx)
+   if err != nil {
+    log.Fatal(err)
+  }
+
+   defer client.Disconnect(ctx)
+
+   err = client.Ping(ctx,readpref.Primary())
+
+   if err != nil {
+    log.Fatal(err)
+  }
+
+  database,err :=client.ListDatabaseNames(ctx,bson.M{})
+  if err != nil {
+	   log.Fatal(err)
+  }
+   
+  fmt.Println(database)
+
    handleRequest()
+  
+
 }
