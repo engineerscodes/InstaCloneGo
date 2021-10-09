@@ -12,10 +12,10 @@ import (
 	"strconv"
 	"sync"
 	"time"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type autoInc struct {
@@ -121,7 +121,9 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		CheckUser := DbUser{}
 		err2 := col.FindOne(ctx, bson.M{"Email": r.FormValue("email")}).Decode(&CheckUser)
 		if err2 != nil { //if email is not already reg
-			var dbdata DbUser = DbUser{UserID: Id.ID(), Name: r.FormValue("name"), Email: r.FormValue("email"), Password: r.FormValue("password"), Time: time.Now()}
+			password:=r.FormValue("password")
+			hash,_:=bcrypt.GenerateFromPassword([]byte(password),10)
+			var dbdata DbUser = DbUser{UserID: Id.ID(), Name: r.FormValue("name"), Email: r.FormValue("email"), Password: string(hash), Time: time.Now()}
 			res, Inserterr := col.InsertOne(ctx, dbdata)
 			if Inserterr != nil {
 				fmt.Println("ERROR IN INSERT TO DB")
