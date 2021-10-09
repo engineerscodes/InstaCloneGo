@@ -101,7 +101,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("content-type", "text/html")
 		t, _ := template.ParseFiles("Templates/User.html")
 		t.Execute(w, nil)
-	} else {
+	} else { //password and username will be changed after 11
 		client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://naveen:jI5jrhnXHI8ibyQw@cluster1.ezz33.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 		ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
 		err = client.Connect(ctx)
