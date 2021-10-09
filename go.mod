@@ -1,4 +1,4 @@
-module main
+module InstaCloneGo
 
 go 1.17
 

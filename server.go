@@ -12,7 +12,6 @@ import (
 	"strconv"
 	"sync"
 	"time"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -61,12 +60,6 @@ type Invalid struct{
 }
 
 
-/*
-func NewDbUser() *DbUser {
-	return &DbUser{
-		ID: Id.ID(),
-	}
-}*/
 
 func index() {
 	http.HandleFunc("/",HttpReqHandler)
@@ -78,6 +71,8 @@ var(
 	getuser=regexp.MustCompile(`^\/users\/([0-9]+)$`)
 	CreatePost=regexp.MustCompile(`^\/posts[\/]*$`)
 	GetPost=regexp.MustCompile(`^\/posts\/([0-9]+)$`)
+	GetUserPost=regexp.MustCompile(`^\/posts\/users\/([0-9]+)$`) ///posts/users/<Id here>' user=id od the user which is unqiue
+
 )
 
 func HttpReqHandler(w http.ResponseWriter, r *http.Request) {
@@ -95,6 +90,9 @@ func HttpReqHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	case GetPost.MatchString(r.URL.Path):
 	GetPostId(w,r)
+	return
+	case GetUserPost.MatchString(r.URL.Path):
+	GetPostOFUser(w,r)
 	return
 	}
 
@@ -121,13 +119,22 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("content-type", "application/json")
 		//fmt.Println("Creating User ")
 		var user NewUser = NewUser{Name: r.FormValue("name"), Email: r.FormValue("email"), Time: time.Now()}
-		var dbdata DbUser=DbUser{UserID:Id.ID(),Name :r.FormValue("name"),Email: r.FormValue("email"),Password: r.FormValue("password") ,Time: time.Now()}
+		CheckUser:=DbUser{}
+		err2:=col.FindOne(ctx, bson.M{"Email":r.FormValue("email")}).Decode(&CheckUser)
+		if err2 !=nil{   //if email is not already reg
+	    var dbdata DbUser=DbUser{UserID:Id.ID(),Name :r.FormValue("name"),Email: r.FormValue("email"),Password: r.FormValue("password") ,Time: time.Now()}
 		res,Inserterr:=col.InsertOne(ctx,dbdata)
 		if Inserterr != nil {
 			fmt.Println("ERROR IN INSERT TO DB")
 		}
 		fmt.Println(reflect.TypeOf( res))
 		json.NewEncoder(w).Encode(user)
+		}else{
+        data:="Email already Registered ! "+r.FormValue("email")
+		invalidmess:=Invalid{Message:data }
+		json.NewEncoder(w).Encode(invalidmess)
+		}
+		
 	}
 	
 }
@@ -135,8 +142,8 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	userID := getuser.FindStringSubmatch(r.URL.Path)[1]
 	IntUserID, _ := strconv.ParseInt(userID, 0, 64)
     fmt.Println(IntUserID)
+	w.Header().Set("content-type", "application/json")
   if r.Method == "GET" {
-	  
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://naveen:jI5jrhnXHI8ibyQw@cluster1.ezz33.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
 	err = client.Connect(ctx)
@@ -146,11 +153,9 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	databases, _ := client.ListDatabaseNames(ctx, bson.M{})
 	fmt.Println(databases)
 	collection.FindOne(ctx, bson.M{"UserID":IntUserID}).Decode(&res)
-	//fmt.Println(col)
 	if err != nil {
 		log.Fatal(err)
 	}
-	w.Header().Set("content-type", "application/json")
 	if res.Email !="" ||  res.Name !="" ||  res.Password !="" {
 	json.NewEncoder(w).Encode(res)
     }else{
@@ -159,11 +164,12 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		invalidmess:=Invalid{Message:data }
 		json.NewEncoder(w).Encode(invalidmess)
 	}
-	
-      
+	}else{
+		
+		data:="Method Not Allowed"
+		invalidmess:=Invalid{Message:data }
+		json.NewEncoder(w).Encode(invalidmess)
 	}
-
-
 }
 
 func PostData(w http.ResponseWriter, r *http.Request){
@@ -172,8 +178,8 @@ func PostData(w http.ResponseWriter, r *http.Request){
 		invalidmess:=Invalid{Message:data }
 		json.NewEncoder(w).Encode(invalidmess)
 	}
-    
 	if r.Method == "POST" {
+	w.Header().Set("content-type", "application/json")
       r.ParseMultipartForm(10<<20)
 	  imageurl:=r.FormValue("ImageURl")
 	  UEmail:=r.FormValue("email")
@@ -186,11 +192,9 @@ func PostData(w http.ResponseWriter, r *http.Request){
 	}
 	defer client.Disconnect(ctx)
 	res:=DbUser{}
-	collection := client.Database("users").Collection("Posts")
-	databases, _ := client.ListDatabaseNames(ctx, bson.M{})
-	fmt.Println(databases)
-	collection.FindOne(ctx, bson.M{"Email":UEmail}).Decode(&res)
-	fmt.Println(res.UserID ,"!!!")
+	UserCollection:=client.Database("users").Collection("usersinstaclone")
+	err2:=UserCollection.FindOne(ctx, bson.M{"Email":UEmail}).Decode(&res)
+	if err2 ==nil{ //there is a mail match
 	PostCollection:=client.Database("users").Collection("Posts")
 	UserPost :=Post{PostID :Id.ID(),Email:UEmail,ImageURl: imageurl,Caption: Caption,Time: time.Now()}
 	response,Inserterr:=PostCollection.InsertOne(ctx,UserPost)
@@ -198,31 +202,32 @@ func PostData(w http.ResponseWriter, r *http.Request){
 		log.Fatal(Inserterr)
 	}
 	fmt.Print(response)
-	w.Header().Set("content-type", "application/json")
 	json.NewEncoder(w).Encode(UserPost)
+	json.NewEncoder(w).Encode(UserPost)
+	}else{  // mail is not reg
+		data:="EMAIL NOT FOUND !"
+		invalidmess:=Invalid{Message:data }
+		json.NewEncoder(w).Encode(invalidmess)
+	}
 	}
  
 }
 func GetPostId(w http.ResponseWriter, r *http.Request) {
-    
 	PostID := GetPost.FindStringSubmatch(r.URL.Path)[1]
 	IntPostID, _ := strconv.ParseInt(PostID, 0, 64)
     fmt.Println(IntPostID)
-	 if r.Method == "GET" {
-	  
+	w.Header().Set("content-type", "application/json")
+	 if r.Method == "GET" { 
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://naveen:jI5jrhnXHI8ibyQw@cluster1.ezz33.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
 	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
 	err = client.Connect(ctx)
 	defer client.Disconnect(ctx)
 	res:=Post{}
 	collection := client.Database("users").Collection("Posts")
-	databases, _ := client.ListDatabaseNames(ctx, bson.M{})
-	fmt.Println(databases)
 	collection.FindOne(ctx, bson.M{"PostID":IntPostID}).Decode(&res)
 	if err != nil {
 		log.Fatal(err)
 	}
-	w.Header().Set("content-type", "application/json")
 	if res.Email !="" ||  res.Caption !="" ||  res.ImageURl !="" {
 	json.NewEncoder(w).Encode(res)
     }else{
@@ -233,8 +238,56 @@ func GetPostId(w http.ResponseWriter, r *http.Request) {
 	}
 	
       
+	}else{
+		data:="Method Not Allowed"
+		invalidmess:=Invalid{Message:data }
+		json.NewEncoder(w).Encode(invalidmess)
 	}
 
+}
+
+
+func GetPostOFUser(w http.ResponseWriter, r *http.Request){
+    UserID:=GetUserPost.FindStringSubmatch(r.URL.Path)[1]
+	IntUserID, _ := strconv.ParseInt(UserID, 0, 64)
+	w.Header().Set("content-type", "application/json")
+	if r.Method == "GET" {
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://naveen:jI5jrhnXHI8ibyQw@cluster1.ezz33.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
+	err = client.Connect(ctx)
+	defer client.Disconnect(ctx)
+	res:=DbUser{}
+	collection := client.Database("users").Collection("usersinstaclone")
+	collection.FindOne(ctx, bson.M{"UserID":IntUserID}).Decode(&res)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if res.Email !="" ||  res.Name !="" ||  res.Password !="" {
+        
+		PostCol:=client.Database("users").Collection("Posts")
+		//Postres:=Post{}
+		cursor,_:=PostCol.Find(ctx, bson.M{"Email":res.Email})
+		  for cursor.Next(ctx) {
+			var Postres bson.M
+			if err3 := cursor.Decode(&Postres); err3 != nil {
+				log.Fatal(err3)
+			}
+          json.NewEncoder(w).Encode(Postres)
+		
+		}
+
+
+    }else{
+	
+		data:="USER ID : "+UserID+" NOT FOUND"
+		invalidmess:=Invalid{Message:data }
+		json.NewEncoder(w).Encode(invalidmess)
+	}
+	}else{
+		data:="Method Not Allowed"
+		invalidmess:=Invalid{Message:data }
+		json.NewEncoder(w).Encode(invalidmess)
+	}
 }
 
 
