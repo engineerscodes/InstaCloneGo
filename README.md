@@ -13,6 +13,7 @@ Instagram Backend API Using GO
 4. GET A POST USING ID :http://localhost:8001/posts/:id
 5. LIST ALL POSTS OF A USER http://localhost:8001/posts/users/:id
 6. Pagination with perpage 1 and perpage 5 ex: At Bottom 
+7. Hashed Password using bcrypt  Check Last example
 
 # CREATE USERS
 1. GET 
@@ -64,6 +65,14 @@ Instagram Backend API Using GO
 ![image](https://user-images.githubusercontent.com/68312849/136660781-6b9c29c7-952b-4516-8e46-5ce07518cace.png)
 ![image](https://user-images.githubusercontent.com/68312849/136660832-9b89b035-5bf4-45aa-917f-d7d3a032b3c0.png)
 ![image](https://user-images.githubusercontent.com/68312849/136660851-35d7ae2e-b290-463a-92ce-62a1c88245d7.png)
+
+
+# Password Hashing using Bcrypt
+1. Response of Post request 
+![image](https://user-images.githubusercontent.com/68312849/136661683-a1dfb8d6-b211-4765-b24d-a337ac110f4b.png)
+2. Hashed Password in Atlas
+![image](https://user-images.githubusercontent.com/68312849/136661716-c2a51711-ec29-4259-95d4-928762f318bd.png)
+
 
 
 
