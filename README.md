@@ -12,6 +12,7 @@ Instagram Backend API Using GO
 3. CREATE A POST  : http://localhost:8001/posts
 4. GET A POST USING ID :http://localhost:8001/posts/:id
 5. LIST ALL POSTS OF A USER http://localhost:8001/posts/users/:id
+6. Pagination with perpage 1 and perpage 5 ex: At Bottom 
 
 # CREATE USERS
 1. GET 
@@ -51,6 +52,20 @@ Instagram Backend API Using GO
 ![image](https://user-images.githubusercontent.com/68312849/136657250-a00b0f5d-236e-41ba-b22d-e5f967630edd.png)
 3. POST
 ![image](https://user-images.githubusercontent.com/68312849/136657255-bb122c5f-7db8-4107-a967-f69ee634153d.png)
+
+#  Pagination
+1. PerPage = 1
+![image](https://user-images.githubusercontent.com/68312849/136660739-47f994e4-5c80-4fb4-8eae-2936a9bd12cd.png)
+![image](https://user-images.githubusercontent.com/68312849/136660744-d25a9e17-155b-4c2b-a21c-3fca1643814d.png)
+![image](https://user-images.githubusercontent.com/68312849/136660753-62a721a5-5fb2-4446-bfc9-bdda8bf04d42.png)
+
+2. PerPage =5
+
+![image](https://user-images.githubusercontent.com/68312849/136660781-6b9c29c7-952b-4516-8e46-5ce07518cace.png)
+![image](https://user-images.githubusercontent.com/68312849/136660832-9b89b035-5bf4-45aa-917f-d7d3a032b3c0.png)
+![image](https://user-images.githubusercontent.com/68312849/136660851-35d7ae2e-b290-463a-92ce-62a1c88245d7.png)
+
+
 
 
 
