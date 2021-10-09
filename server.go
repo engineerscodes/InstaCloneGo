@@ -203,7 +203,6 @@ func PostData(w http.ResponseWriter, r *http.Request){
 	}
 	fmt.Print(response)
 	json.NewEncoder(w).Encode(UserPost)
-	json.NewEncoder(w).Encode(UserPost)
 	}else{  // mail is not reg
 		data:="EMAIL NOT FOUND !"
 		invalidmess:=Invalid{Message:data }
