@@ -12,8 +12,8 @@ Instagram Backend API Using GO
 3. CREATE A POST  : http://localhost:8001/posts
 4. GET A POST USING ID :http://localhost:8001/posts/:id
 5. LIST ALL POSTS OF A USER http://localhost:8001/posts/users/:id
-6. Pagination with perpage 1 and perpage 5 ex: At Bottom 
-7. Hashed Password using bcrypt  Check Last example
+6. PAGINATION WITH PER PAGE **1** AND PER PAGE **5** EX: AT BOTTOM 
+7. HASHED PASSWORD USING **BCRYPT**  CHECK LAST EXAMPLE
 
 # CREATE USERS
 1. GET 
