@@ -141,7 +141,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	userID := getuser.FindStringSubmatch(r.URL.Path)[1]
 	IntUserID, _ := strconv.ParseInt(userID, 0, 64)
-    fmt.Println(IntUserID)
+    //fmt.Println(IntUserID)
 	w.Header().Set("content-type", "application/json")
   if r.Method == "GET" {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://naveen:jI5jrhnXHI8ibyQw@cluster1.ezz33.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
@@ -150,8 +150,6 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	defer client.Disconnect(ctx)
 	res:=DbUser{}
 	collection := client.Database("users").Collection("usersinstaclone")
-	databases, _ := client.ListDatabaseNames(ctx, bson.M{})
-	fmt.Println(databases)
 	collection.FindOne(ctx, bson.M{"UserID":IntUserID}).Decode(&res)
 	if err != nil {
 		log.Fatal(err)
