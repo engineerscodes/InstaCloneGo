@@ -14,7 +14,7 @@ Instagram Backend API Using GO
 5. LIST ALL POSTS OF A USER http://localhost:8001/posts/users/:id
 
 # CREATE USERS
-* GET 
+1. GET 
 ![image](https://user-images.githubusercontent.com/68312849/136656301-061c2b53-3fef-4097-8c64-19f551f57dbc.png)
 2. POST
 ![image](https://user-images.githubusercontent.com/68312849/136656570-12509640-89b6-4196-863a-146956d98066.png)
